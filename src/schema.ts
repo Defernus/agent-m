@@ -1,5 +1,5 @@
 export type RegularSchema = {
-    type: "string" | "number" | "boolean",
+    type: "string" | "integer" | "boolean",
 }
 
 export type ArraySchema = {
@@ -21,7 +21,7 @@ export type Schema = RegularSchema | ObjectSchema | ArraySchema;
 export type TypeOfSchema<T> =
     T extends RegularSchema ? (
         T["type"] extends "string" ? string :
-        T["type"] extends "number" ? number :
+        T["type"] extends "integer" ? number :
         T["type"] extends "boolean" ? boolean :
         never
     ) :
@@ -39,7 +39,7 @@ export const validateBySchema = <S extends Schema>(data: unknown, schema: S): Ty
         }
         return data as any;
     }
-    if (schema.type === "number") {
+    if (schema.type === "integer") {
         if (typeof data !== "number") {
             throw new Error(`Expected number, got ${typeof data}`);
         }
@@ -79,7 +79,7 @@ export const validateBySchema = <S extends Schema>(data: unknown, schema: S): Ty
 
 
 export const validateSchema = (schema: Schema) => {
-    if (schema.type === "string" || schema.type === "number" || schema.type === "boolean") {
+    if (schema.type === "string" || schema.type === "integer" || schema.type === "boolean") {
         return;
     }
 

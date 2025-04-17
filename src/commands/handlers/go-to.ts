@@ -5,10 +5,10 @@ import { Schema, TypeOfSchema } from "schema";
 const SCHEMA = {
     type: "object",
     properties: {
-        x: { type: "number" },
-        y: { type: "number" },
-        z: { type: "number" },
-        range: { type: "number" },
+        x: { type: "integer" },
+        y: { type: "integer" },
+        z: { type: "integer" },
+        range: { type: "integer" },
     },
     required: ["x", "y", "z", "range"],
     additionalProperties: false

@@ -12,11 +12,11 @@ export type TaskHistoryEntry = {
     /**
      * Bot reasoning for the command
      */
-    reasoning: string,
+    reasoning?: string,
     /**
      * Command that was executed
      */
-    command: Command,
+    command?: Command,
     /**
      * Describes current state of the game (e.g. items in the inventory, stats, nearby entities, etc.)
      */

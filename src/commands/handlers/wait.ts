@@ -5,7 +5,7 @@ import { Schema, TypeOfSchema } from "schema";
 const SCHEMA = {
     type: "object",
     properties: {
-        ms: { type: "number" },
+        ms: { type: "integer" },
     },
     required: ["ms"],
     additionalProperties: false

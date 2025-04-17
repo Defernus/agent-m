@@ -9,8 +9,7 @@ export type AppConfig = {
 
     mainModel: string;
 
-    systemPromptReasoning: string;
-    systemPromptCommandGeneration: string;
+    systemPrompt: string;
 
     maxTaskHistory: number;
 
@@ -22,16 +21,18 @@ export type AppConfig = {
 };
 
 
-const DEFAULT_SYSTEM_PROMPT_REASONING = `
+const DEFAULT_SYSTEM_PROMPT = `
 You are a Minecraft player.
 Reflect on your actions and the world around you.
 Do not make things up, use only the information you provided in the history.
+You do not have any visual input, only text. But you can use commands to interact and explore the world.
 Use your knowledge of Minecraft to reason about the next action to take.
-`.trim();
 
-const DEFAULT_SYSTEM_PROMPT_COMMAND_GENERATION = `
-Use one of provided function. DO NOT GENERATE ANY RESPONSE, only return the function call.
-Any text outside of the function call will be sent to chat.
+The bad thing is you don't have any useful commands yet, ask me and i will add them for you (you already can use chat).
+
+After reasoning call one of the provided functions.
+
+Don't think for too long!
 `.trim();
 
 export const loadAppConfig = (): AppConfig => {
@@ -44,8 +45,7 @@ export const loadAppConfig = (): AppConfig => {
         modelsPath,
         modelsConfig,
         mainModel: loadEnvString("MAIN_MODEL"),
-        systemPromptReasoning: loadEnvStringOr("SYSTEM_PROMPT_REASONING", DEFAULT_SYSTEM_PROMPT_REASONING),
-        systemPromptCommandGeneration: loadEnvStringOr("SYSTEM_PROMPT_COMMAND_GENERATION", DEFAULT_SYSTEM_PROMPT_COMMAND_GENERATION),
+        systemPrompt: loadEnvStringOr("SYSTEM_PROMPT", DEFAULT_SYSTEM_PROMPT),
         maxTaskHistory: loadEnvNumberOr("MAX_TASK_HISTORY", 1000),
         iterationDelayMs: loadEnvNumberOr("ITERATION_DELAY", 5000),
         mcServerPort: loadEnvNumberOr("MC_SERVER_PORT", 25565),

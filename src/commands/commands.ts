@@ -1,6 +1,5 @@
 import { AppContext } from "context";
-import { Schema, TypeOfSchema, validateBySchema, validateSchema } from "schema";
-import { logDebug } from "utils/logger";
+import { Schema, validateSchema } from "schema";
 
 import fs from "fs";
 import path from "path";
@@ -38,8 +37,6 @@ export const handleCommand = async (ctx: AppContext, command: Command): Promise<
     if (!commandInfo) {
         throw new Error(`Command handler not found for key: ${command.key}`);
     }
-
-    logDebug(`[COMMAND]\n${JSON.stringify(command.args, null, 2)}`);
 
     await commandInfo.handler(ctx, command.args);
 };

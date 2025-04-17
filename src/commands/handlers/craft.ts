@@ -6,7 +6,7 @@ const SCHEMA = {
     type: "object",
     properties: {
         item: { type: "string" },
-        count: { type: "number" },
+        count: { type: "integer" },
     },
     required: ["item", "count"],
     additionalProperties: false

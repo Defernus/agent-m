@@ -4,7 +4,10 @@ import { Item } from "prismarine-item";
 
 export const generateHistory = async (ctx: AppContext): Promise<ResponseInput> => {
     return ctx.taskHistory.flatMap((entry): ResponseInputItem[] => {
-        const botMessage = `${entry.reasoning}\n\n# Command\n\`\`\`json\n${JSON.stringify(entry.command, null, 2)}\n\`\`\``;
+        const commandStr = entry.command ? `# Command\n\`\`\`json\n${JSON.stringify(entry.command, null, 2)}\n\`\`\`` : "";
+        const reasoningStr = entry.reasoning ? `# Reasoning\n${entry.reasoning}` : "";
+
+        const botMessage = `${entry.reasoning}\n\n${commandStr}\n\n${reasoningStr}`;
         const result = `# Events\n${entry.worldEvents}\n# State\n${entry.inGameState}`
 
         return [
