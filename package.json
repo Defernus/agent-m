@@ -1,0 +1,31 @@
+{
+  "name": "agent-ts",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsup src/index.ts --out-dir dist --format cjs",
+    "dev": "ts-node --require tsconfig-paths/register src/index.ts",
+    "watch": "ts-node-dev --respawn --require tsconfig-paths/register src/index.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/node": "^22.14.1",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "tsconfig-paths": "^4.2.0",
+    "tsup": "^8.4.0",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "minecraft-data": "^3.85.0",
+    "mineflayer": "^4.0.0",
+    "mineflayer-pathfinder": "^2.4.5",
+    "openai": "^4.94.0",
+    "prismarine-item": "^1.16.0",
+    "toml": "^3.0.0"
+  }
+}
