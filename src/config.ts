@@ -1,7 +1,7 @@
 import { loadEnvNumberOr, loadEnvString, loadEnvStringOr } from "utils/env";
 import fs from "fs";
 import toml from "toml";
-import { Schema, TypeOfSchema, validateSchema } from "schema";
+import { Schema, TypeOfSchema, validateBySchema } from "schema";
 
 export type AppConfig = {
     modelsPath: string;
@@ -38,7 +38,7 @@ export const loadAppConfig = (): AppConfig => {
     const modelsPath = loadEnvStringOr("MODELS_PATH", "models.toml");
 
     const rawModelsConfig = fs.readFileSync(modelsPath, "utf-8");
-    const modelsConfig = validateSchema(toml.parse(rawModelsConfig), MODELS_CONFIG_SCHEMA);
+    const modelsConfig = validateBySchema(toml.parse(rawModelsConfig), MODELS_CONFIG_SCHEMA);
 
     return {
         modelsPath,

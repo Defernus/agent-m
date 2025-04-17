@@ -5,7 +5,7 @@ import { handleError } from "handle-error";
 import { getMainModel } from "model";
 import { sleep } from "openai/core";
 import { FunctionTool, ResponseInput } from "openai/resources/responses/responses";
-import { validateSchema } from "schema";
+import { validateBySchema } from "schema";
 import { logDebug, logInfo, logWarn } from "utils/logger";
 
 export const startMainLoop = async (ctx: AppContext) => {
@@ -119,7 +119,7 @@ const getNextCommand = async (ctx: AppContext, history: ResponseInput, reasoning
         }
 
         const commandArgs = JSON.parse(resultFunctionCall.arguments);
-        validateSchema(commandArgs, commandInfo.schema);
+        validateBySchema(commandArgs, commandInfo.schema);
 
         return {
             key: commandInfo?.key,

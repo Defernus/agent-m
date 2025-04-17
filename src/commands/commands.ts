@@ -1,5 +1,5 @@
 import { AppContext } from "context";
-import { Schema, TypeOfSchema } from "schema";
+import { Schema, TypeOfSchema, validateBySchema, validateSchema } from "schema";
 import { logDebug } from "utils/logger";
 
 import fs from "fs";
@@ -18,6 +18,7 @@ const COMMANDS_LOCATION = path.join(__dirname, "handlers");
 for (const file of fs.readdirSync(COMMANDS_LOCATION)) {
     if (file.endsWith(".ts")) {
         const command = require(`commands/handlers/${file}`).default;
+        validateSchema(command.schema);
         COMMAND_LIST.push(command);
     }
 }
@@ -40,5 +41,5 @@ export const handleCommand = async (ctx: AppContext, command: Command): Promise<
 
     logDebug(`[COMMAND]\n${JSON.stringify(command.args, null, 2)}`);
 
-    await commandInfo.handler(ctx, command.args as unknown as any);
+    await commandInfo.handler(ctx, command.args);
 };
