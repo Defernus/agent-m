@@ -12,12 +12,15 @@ export type WorldEvent = {
 export type BotState = {
     disconnectReason?: string;
     unhandledWorldEvents: WorldEvent[];
-    bot: mineflayer.Bot;
     mcData: mcData.IndexedData;
 };
 
+type ConnectBitResult = {
+    bot: mineflayer.Bot,
+    botState: BotState,
+};
 
-export const connectBot = async (config: AppConfig): Promise<BotState> => {
+export const connectBot = async (config: AppConfig): Promise<ConnectBitResult> => {
     const bot = mineflayer.createBot({
         host: config.mcServerHost,
         port: config.mcServerPort,
@@ -46,16 +49,15 @@ export const connectBot = async (config: AppConfig): Promise<BotState> => {
 
     logDebug("[BOT] Connected.");
 
-    const state: BotState = {
+    const botState: BotState = {
         disconnectReason: undefined,
         unhandledWorldEvents: [],
-        bot,
         mcData: currentMcData,
     };
 
     const onError = (err: any) => {
         logDebug(`[BOT] "error" event: ${err}`);
-        state.unhandledWorldEvents.push({
+        botState.unhandledWorldEvents.push({
             type: "error",
             content: `Error: ${err}`,
         });
@@ -71,7 +73,7 @@ export const connectBot = async (config: AppConfig): Promise<BotState> => {
     ) => {
         const content = `<${username}> ${message}`;
         logDebug(`[BOT]: "message" event: ${content}`);
-        state.unhandledWorldEvents?.push({
+        botState.unhandledWorldEvents?.push({
             type: "chat",
             content,
         });
@@ -85,17 +87,17 @@ export const connectBot = async (config: AppConfig): Promise<BotState> => {
 
     bot.once("kicked", (reason: any, loggedIn: boolean) => {
         logDebug(`[BOT] "kicked" event. Reason: ${reason}, Logged in: ${loggedIn}`);
-        state.disconnectReason = `kicked: ${reason}`;
+        botState.disconnectReason = `kicked: ${reason}`;
 
         unsubscribe();
     });
 
     bot.once("end", (reason) => {
         logDebug(`[BOT] "ent" event. Reason: ${reason}`);
-        state.disconnectReason = `end: ${reason}`;
+        botState.disconnectReason = `end: ${reason}`;
 
         unsubscribe();
     });
 
-    return state;
+    return { bot, botState };
 };

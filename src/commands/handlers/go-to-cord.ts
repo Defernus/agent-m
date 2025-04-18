@@ -25,6 +25,6 @@ export const COMMAND_GO_TO_CORD = {
         const goal = args.y === null
             ? new goals.GoalNearXZ(args.x, args.z, args.range)
             : new goals.GoalNear(args.x, args.y, args.z, args.range);
-        await ctx.bot.bot.pathfinder.goto(goal);
+        await ctx.providers.bot.pathfinder.goto(goal);
     },
 };

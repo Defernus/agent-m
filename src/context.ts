@@ -24,21 +24,27 @@ export type TaskHistoryEntry = {
 };
 
 export type AppContext = {
+    // immutable values loaded on app start
     config: AppConfig,
+    // various API providers
+    providers: AppProviders,
+    // mutable state of the app
+    state: AppState,
+};
+
+export type AppProviders = {
     aiProviders: Record<string, OpenAI>,
-    models: Record<string, ModelInfo>,
+    bot: mineflayer.Bot;
+}
+
+export type AppState = {
     bot: BotState,
     taskHistory: TaskHistoryEntry[],
     iteration: number,
-};
-
-export type ModelInfo = {
-    modelName: string,
-    provider: string,
-};
+}
 
 export const createAppContext = async (config: AppConfig): Promise<AppContext> => {
-    const bot = await connectBot(config);
+    const { bot, botState } = await connectBot(config);
 
     const aiProviders = Object.fromEntries(
         config.modelsConfig.providers.map((provider) => {
@@ -50,19 +56,16 @@ export const createAppContext = async (config: AppConfig): Promise<AppContext> =
         }),
     );
 
-    const models = Object.fromEntries(
-        config.modelsConfig.models.map((model) => [model.name, {
-            modelName: model.model,
-            provider: model.provider,
-        }]),
-    );
-
     return {
         config,
-        aiProviders,
-        models,
-        bot,
-        taskHistory: [],
-        iteration: 0,
-    }
+        providers: {
+            aiProviders,
+            bot,
+        },
+        state: {
+            bot: botState,
+            taskHistory: [],
+            iteration: 0,
+        }
+    } satisfies AppContext;
 };

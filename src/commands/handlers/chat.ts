@@ -18,6 +18,6 @@ export const COMMAND_CHAT = {
         ctx: AppContext,
         args: TypeOfSchema<typeof SCHEMA>,
     ): Promise<void> => {
-        ctx.bot.bot.chat(args.message);
+        ctx.providers.bot.chat(args.message);
     },
 };

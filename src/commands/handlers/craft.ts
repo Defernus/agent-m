@@ -21,20 +21,20 @@ export const COMMAND_CRAFT = {
         args: TypeOfSchema<typeof SCHEMA>,
     ): Promise<void> => {
         // TODO use crafting table if available
-        const item = ctx.bot.mcData.itemsByName[args.item];
+        const item = ctx.state.bot.mcData.itemsByName[args.item];
 
         if (!item) {
             handleError(ctx, `Item ${JSON.stringify(args.item)} not found in minecraft-data`);
             return;
         }
 
-        const recipe = ctx.bot.bot.recipesFor(item.id, null, 1, false)[0];
+        const recipe = ctx.providers.bot.recipesFor(item.id, null, 1, false)[0];
 
         if (!recipe) {
             handleError(ctx, `Recipe for ${args.item} not found`);
             return;
         }
 
-        await ctx.bot.bot.craft(recipe, args.count);
+        await ctx.providers.bot.craft(recipe, args.count);
     },
 };

@@ -6,6 +6,7 @@ import { Schema, TypeOfSchema, validateBySchema } from "schema";
 export type AppConfig = {
     modelsPath: string;
     modelsConfig: ModelsConfig;
+    models: Record<string, ModelInfo>,
 
     mainModel: string;
 
@@ -18,6 +19,11 @@ export type AppConfig = {
     mcServerPort: number;
     mcServerHost: string;
     mcBotUsername: string;
+};
+
+export type ModelInfo = {
+    modelName: string,
+    provider: string,
 };
 
 
@@ -41,9 +47,17 @@ export const loadAppConfig = (): AppConfig => {
     const rawModelsConfig = fs.readFileSync(modelsPath, "utf-8");
     const modelsConfig: ModelsConfig = validateBySchema(toml.parse(rawModelsConfig), MODELS_CONFIG_SCHEMA);
 
+    const models = Object.fromEntries(
+        modelsConfig.models.map((model) => [model.name, {
+            modelName: model.model,
+            provider: model.provider,
+        }]),
+    );
+
     return {
         modelsPath,
         modelsConfig,
+        models,
         mainModel: loadEnvString("MAIN_MODEL"),
         systemPrompt: loadEnvStringOr("SYSTEM_PROMPT", DEFAULT_SYSTEM_PROMPT),
         maxTaskHistory: loadEnvNumberOr("MAX_TASK_HISTORY", 1000),
