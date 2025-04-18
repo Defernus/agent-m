@@ -44,67 +44,14 @@ export const processWorldInfo = async (ctx: AppContext): Promise<string> => {
 export const processGameState = async (ctx: AppContext): Promise<string> => {
     const state = [];
 
-    // INVENTORY
-    const items = ctx.bot.bot.inventory.items();
     state.push("## Inventory");
+    state.push(formatInventory(ctx));
 
-    state.push("Hotbar slots (0-8):");
-    state.push(listItems(items, 0, 8));
+    state.push("## Own info");
+    state.push(formatInfo(ctx));
 
-    state.push("Inventory slots (9-35):");
-    state.push(listItems(items, 9, 35));
-
-    state.push("Armor slots (36-44):");
-    state.push(listItems(items, 36, 44));
-
-    state.push("Offhand slot (45):");
-    state.push(listItems(items, 45, 45));
-
-    state.push("## Selected hotbar slot");
-    state.push(`selected slot: ${ctx.bot.bot.quickBarSlot}`);
-
-
-    // LOCATION
-    state.push("## Current location");
-    const { position } = ctx.bot.bot.entity;
-    const { dimension } = ctx.bot.bot.game;
-
-    state.push(`- dimension: ${dimension}`);
-    state.push(`- position: X: ${position.x.toFixed(2)}, Y: ${position.y.toFixed(2)}, Z: ${position.z.toFixed(2)}`);
-
-    // STATS
-    state.push("## Stats");
-    state.push(`- time isDay: ${ctx.bot.bot.time.isDay}`);
-    state.push(`- health: ${ctx.bot.bot.health}`);
-    state.push(`- food: ${ctx.bot.bot.food}`);
-    state.push(`- foodSaturation: ${ctx.bot.bot.foodSaturation}`);
-    state.push(`- level: ${ctx.bot.bot.experience.level}; progress: ${ctx.bot.bot.experience.progress * 100}%`);
-
-    state.push("## Nearby entities");
-    const entitiesByName = Object.entries(ctx.bot.bot.entities).reduce((acc, [id, entity]) => {
-        const entityName = entity.name ?? ctx.bot.mcData.entities[entity.id]?.name ?? "unknown";
-
-        const distance = ctx.bot.bot.entity.position.distanceTo(entity.position);
-
-        acc[entityName] ??= { amount: 0, name: entityName, nearestDistance: distance, nearestId: id };
-
-        acc[entityName].amount += 1;
-        if (distance < acc[entityName].nearestDistance) {
-            acc[entityName].nearestDistance = distance;
-            acc[entityName].nearestId = id;
-        }
-
-        return acc;
-    }, {} as Record<string, { amount: number, name: string, nearestDistance: number, nearestId: string }>);
-
-    const aaa = Object
-        .values(entitiesByName)
-        .sort((a, b) => a.nearestDistance - b.nearestDistance)
-        .map((entity) =>
-            `- ${entity.name} x${entity.amount} (nearest: ${entity.nearestDistance.toFixed(2)} blocks, id: ${entity.nearestId})`
-        )
-        .join("\n");
-    state.push(aaa);
+    state.push("## Entities");
+    state.push(formatEntities(ctx));
 
     return state.join("\n");
 };
@@ -121,10 +68,71 @@ const formatItem = (item: Item) => {
     return `- [at slot ${item.slot}] ${name} x${item.count}`;
 };
 
+const formatInventory = (ctx: AppContext): string => {
+    const items = ctx.bot.bot.inventory.items();
+    const state = [];
+
+    state.push("Hotbar slots (0-8):");
+    state.push(listItems(items, 0, 8));
+
+    state.push("Inventory slots (9-35):");
+    state.push(listItems(items, 9, 35));
+
+    state.push("Armor slots (36-44):");
+    state.push(listItems(items, 36, 44));
+
+    state.push("Offhand slot (45):");
+    state.push(listItems(items, 45, 45));
+
+    state.push("## Selected hotbar slot");
+    state.push(`selected slot: ${ctx.bot.bot.quickBarSlot}`);
+
+    return state.join("\n");
+}
+
+const formatInfo = (ctx: AppContext): string => {
+    const state = [];
+
+    const { position } = ctx.bot.bot.entity;
+    const { dimension } = ctx.bot.bot.game;
+    state.push(`- dimension: ${dimension}`);
+    state.push(`- position: X: ${position.x.toFixed(2)}, Y: ${position.y.toFixed(2)}, Z: ${position.z.toFixed(2)}`);
+
+    state.push(`- time isDay: ${ctx.bot.bot.time.isDay}`);
+    state.push(`- health: ${ctx.bot.bot.health}`);
+    state.push(`- food: ${ctx.bot.bot.food}`);
+    state.push(`- foodSaturation: ${ctx.bot.bot.foodSaturation}`);
+    state.push(`- level: ${ctx.bot.bot.experience.level}; progress: ${ctx.bot.bot.experience.progress * 100}%`);
+
+    return state.join("\n");
+}
+
 const listItems = (items: Item[], slotStart: number, slotEnd: number): string => {
     const filteredItems = items.filter((item) => item.slot >= slotStart && item.slot <= slotEnd);
     if (filteredItems.length === 0) {
         return "Empty";
     }
     return filteredItems.sort((a, b) => a.slot - b.slot).map(formatItem).join("\n");
+};
+
+const formatEntities = (ctx: AppContext): string => {
+    const entities = Object.entries(ctx.bot.bot.entities).map(([id, entity]) => {
+        const entityName = entity.name ?? ctx.bot.mcData.entities[entity.id]?.name ?? "unknown";
+
+        const distance = ctx.bot.bot.entity.position.distanceTo(entity.position);
+
+        return {
+            id,
+            name: entityName,
+            distance,
+        }
+    });
+
+    return entities
+        .sort((a, b) => a.distance - b.distance)
+        .map((entity) =>
+            `- id: ${entity.id}; name: ${JSON.stringify(entity.name)}; distance: ${entity.distance.toFixed(2)} blocks`
+        )
+        .join("\n");
+
 };
