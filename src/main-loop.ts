@@ -3,10 +3,15 @@ import { AppContext } from "context";
 import { generateHistory, processGameState, processWorldInfo as processWorldEvents } from "generate-context";
 import { getNextAction } from "next-action";
 import { sleep } from "openai/core";
-import { logDebug } from "utils/logger";
+import { logDebug, logError } from "utils/logger";
 
 export const startMainLoop = async (ctx: AppContext) => {
     for (; ;) {
+        if (ctx.state.bot.disconnectReason) {
+            logError(`[LOOP] Bot disconnected:\n${ctx.state.bot.disconnectReason}`);
+            return;
+        }
+
         logDebug("[LOOP] start iteration");
         logDebug(`\tIteration: ${ctx.state.iteration}`);
 
