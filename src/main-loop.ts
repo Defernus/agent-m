@@ -8,7 +8,7 @@ import { logDebug } from "utils/logger";
 export const startMainLoop = async (ctx: AppContext) => {
     for (; ;) {
         logDebug("[LOOP] start iteration");
-        logDebug(`\tIteration: ${ctx.iteration}`);
+        logDebug(`\tIteration: ${ctx.state.iteration}`);
 
         const history = await generateHistory(ctx);
 
@@ -23,7 +23,7 @@ export const startMainLoop = async (ctx: AppContext) => {
                 logDebug(`[LOOP] Generated reasoning:\n${reasoning}`);
             }
 
-            ctx.taskHistory.push({ reasoning, command });
+            ctx.state.taskHistory.push({ reasoning, command });
         };
 
         // TODO instead of simple delay wait for some actual events to happen before the next iteration
@@ -35,11 +35,11 @@ export const startMainLoop = async (ctx: AppContext) => {
         const inGameState = await processGameState(ctx);
         logDebug("[LOOP] In-game state:\n" + inGameState);
 
-        ctx.taskHistory.push({ worldEvents, inGameState });
+        ctx.state.taskHistory.push({ worldEvents, inGameState });
 
         await compressHistory(ctx);
 
-        ++ctx.iteration;
+        ++ctx.state.iteration;
     }
 };
 

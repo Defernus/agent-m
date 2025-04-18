@@ -3,7 +3,7 @@ import { ResponseInput, ResponseInputItem } from "openai/resources/responses/res
 import { Item } from "prismarine-item";
 
 export const generateHistory = async (ctx: AppContext): Promise<ResponseInput> => {
-    return ctx.taskHistory.flatMap((entry): ResponseInputItem[] => {
+    return ctx.state.taskHistory.flatMap((entry): ResponseInputItem[] => {
         const result: ResponseInputItem[] = [];
 
         if (entry.command || entry.reasoning) {
@@ -36,8 +36,8 @@ export const generateHistory = async (ctx: AppContext): Promise<ResponseInput> =
 };
 
 export const processWorldInfo = async (ctx: AppContext): Promise<string> => {
-    const events = ctx.bot.unhandledWorldEvents;
-    ctx.bot.unhandledWorldEvents = [];
+    const events = ctx.state.bot.unhandledWorldEvents;
+    ctx.state.bot.unhandledWorldEvents = [];
     return events.map(({ type, content }) => `## ${type}\n${content}`).join("\n");
 };
 
@@ -69,7 +69,7 @@ const formatItem = (item: Item) => {
 };
 
 const formatInventory = (ctx: AppContext): string => {
-    const items = ctx.bot.bot.inventory.items();
+    const items = ctx.providers.bot.inventory.items();
     const state = [];
 
     state.push("Hotbar slots (0-8):");
@@ -85,7 +85,7 @@ const formatInventory = (ctx: AppContext): string => {
     state.push(listItems(items, 45, 45));
 
     state.push("## Selected hotbar slot");
-    state.push(`selected slot: ${ctx.bot.bot.quickBarSlot}`);
+    state.push(`selected slot: ${ctx.providers.bot.quickBarSlot}`);
 
     return state.join("\n");
 }
@@ -93,16 +93,16 @@ const formatInventory = (ctx: AppContext): string => {
 const formatInfo = (ctx: AppContext): string => {
     const state = [];
 
-    const { position } = ctx.bot.bot.entity;
-    const { dimension } = ctx.bot.bot.game;
+    const { position } = ctx.providers.bot.entity;
+    const { dimension } = ctx.providers.bot.game;
     state.push(`- dimension: ${dimension}`);
     state.push(`- position: X: ${position.x.toFixed(2)}, Y: ${position.y.toFixed(2)}, Z: ${position.z.toFixed(2)}`);
 
-    state.push(`- time isDay: ${ctx.bot.bot.time.isDay}`);
-    state.push(`- health: ${ctx.bot.bot.health}`);
-    state.push(`- food: ${ctx.bot.bot.food}`);
-    state.push(`- foodSaturation: ${ctx.bot.bot.foodSaturation}`);
-    state.push(`- level: ${ctx.bot.bot.experience.level}; progress: ${ctx.bot.bot.experience.progress * 100}%`);
+    state.push(`- time isDay: ${ctx.providers.bot.time.isDay}`);
+    state.push(`- health: ${ctx.providers.bot.health}`);
+    state.push(`- food: ${ctx.providers.bot.food}`);
+    state.push(`- foodSaturation: ${ctx.providers.bot.foodSaturation}`);
+    state.push(`- level: ${ctx.providers.bot.experience.level}; progress: ${ctx.providers.bot.experience.progress * 100}%`);
 
     return state.join("\n");
 }
@@ -116,10 +116,10 @@ const listItems = (items: Item[], slotStart: number, slotEnd: number): string =>
 };
 
 const formatEntities = (ctx: AppContext): string => {
-    const entities = Object.entries(ctx.bot.bot.entities).map(([id, entity]) => {
-        const entityName = entity.name ?? ctx.bot.mcData.entities[entity.id]?.name ?? "unknown";
+    const entities = Object.entries(ctx.providers.bot.entities).map(([id, entity]) => {
+        const entityName = entity.name ?? ctx.state.bot.mcData.entities[entity.id]?.name ?? "unknown";
 
-        const distance = ctx.bot.bot.entity.position.distanceTo(entity.position);
+        const distance = ctx.providers.bot.entity.position.distanceTo(entity.position);
 
         return {
             id,
