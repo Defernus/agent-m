@@ -6,13 +6,13 @@ const SCHEMA = {
     type: "object",
     properties: {
         item: { type: "string" },
-        count: { type: "integer" },
+        count: { type: "number" },
     },
     required: ["item", "count"],
     additionalProperties: false
 } satisfies Schema;
 
-export default {
+export const COMMAND_CRAFT = {
     key: "craft" as const,
     schema: SCHEMA,
     description: "Craft recipe `count` times. Before crafting, calculate the recipe output, for example if you need 10 torches and the recipe output is 4 torches, you need to set `count` to 3.",

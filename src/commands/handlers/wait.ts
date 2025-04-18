@@ -5,13 +5,13 @@ import { Schema, TypeOfSchema } from "schema";
 const SCHEMA = {
     type: "object",
     properties: {
-        ms: { type: "integer" },
+        ms: { type: "number" },
     },
     required: ["ms"],
     additionalProperties: false
 } satisfies Schema;
 
-export default {
+export const COMMAND_WAIT = {
     key: "wait" as const,
     schema: SCHEMA,
     description: "Do nothing for a specified amount of time (in milliseconds)",

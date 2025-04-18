@@ -1,22 +1,22 @@
 import { AppContext } from "context";
+import { Schema, TypeOfSchema } from "schema";
 
-
-export default {
-    key: "chat" as const,
-    schema: {
-        type: "object",
-        properties: {
-            message: { type: "string" },
-        },
-        required: ["message"],
-        additionalProperties: false
+const SCHEMA = {
+    type: "object",
+    properties: {
+        message: { type: "string" },
     },
+    required: ["message"],
+    additionalProperties: false
+} satisfies Schema;
+
+export const COMMAND_CHAT = {
+    key: "chat" as const,
+    schema: SCHEMA,
     description: "Send a message to the chat",
     handler: async (
         ctx: AppContext,
-        args: {
-            message: string,
-        },
+        args: TypeOfSchema<typeof SCHEMA>,
     ): Promise<void> => {
         ctx.bot.bot.chat(args.message);
     },

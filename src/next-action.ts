@@ -1,8 +1,13 @@
-import { Command, COMMAND_BY_KEY } from "commands/commands";
+import { Command, COMMAND_LIST } from "commands/commands";
 import { AppContext } from "context";
 import { getMainModel } from "model";
-import { FunctionTool, ResponseFunctionToolCall, ResponseInput, ResponseOutputRefusal, ResponseOutputText } from "openai/resources/responses/responses";
-import { validateBySchema } from "schema";
+import {
+    FunctionTool,
+    ResponseFunctionToolCall,
+    ResponseInput,
+    ResponseOutputRefusal,
+    ResponseOutputText,
+} from "openai/resources/responses/responses";
 
 export type NextAction = { command?: Command, reasoning?: string };
 
@@ -21,7 +26,7 @@ export const getNextAction = async (
             },
             ...history,
         ],
-        tools: Object.values(COMMAND_BY_KEY).map((command): FunctionTool => ({
+        tools: COMMAND_LIST.map((command): FunctionTool => ({
             name: command.key,
             type: "function",
             description: command.description,
@@ -56,14 +61,13 @@ const parseMessage = (result: Array<ResponseOutputText | ResponseOutputRefusal>)
 
 const parseFunctionCall = (result: ResponseFunctionToolCall): Command => {
     try {
-        const commandInfo = COMMAND_BY_KEY[result.name];
+        const commandInfo = COMMAND_LIST.find(({ key }) => key === result.name);
 
         if (commandInfo === undefined) {
             throw new Error(`Command not found: ${JSON.stringify(result, null, 2)}`);
         }
 
         const commandArgs = JSON.parse(result.arguments);
-        validateBySchema(commandArgs, commandInfo.schema);
 
         return {
             key: commandInfo?.key,

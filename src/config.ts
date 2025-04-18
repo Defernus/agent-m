@@ -39,7 +39,7 @@ export const loadAppConfig = (): AppConfig => {
     const modelsPath = loadEnvStringOr("MODELS_PATH", "models.toml");
 
     const rawModelsConfig = fs.readFileSync(modelsPath, "utf-8");
-    const modelsConfig = validateBySchema(toml.parse(rawModelsConfig), MODELS_CONFIG_SCHEMA);
+    const modelsConfig: ModelsConfig = validateBySchema(toml.parse(rawModelsConfig), MODELS_CONFIG_SCHEMA);
 
     return {
         modelsPath,
