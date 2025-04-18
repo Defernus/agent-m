@@ -3,7 +3,7 @@ import { ResponseInput, ResponseInputItem } from "openai/resources/responses/res
 import { Item } from "prismarine-item";
 
 export const generateHistory = async (ctx: AppContext): Promise<ResponseInput> => {
-    return ctx.state.taskHistory.flatMap((entry): ResponseInputItem[] => {
+    return ctx.state.taskHistory.flatMap((entry, index, history): ResponseInputItem[] => {
         const result: ResponseInputItem[] = [];
 
         if (entry.command || entry.reasoning) {
@@ -19,13 +19,9 @@ export const generateHistory = async (ctx: AppContext): Promise<ResponseInput> =
         }
 
         if (entry.worldEvents) {
-            const worldEventsStr = entry.worldEvents ? `# Events\n${entry.worldEvents}` : null;
-            const inGameStateStr = entry.inGameState ? `# State\n${entry.inGameState}` : null;
-
-            const info = [worldEventsStr, inGameStateStr].filter(Boolean).join("\n\n");
-
+            const worldEventsStr = `# Events\n${entry.worldEvents}`;
             result.push({
-                content: info,
+                content: worldEventsStr,
                 role: "user",
                 type: "message",
             });

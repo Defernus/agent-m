@@ -15,10 +15,14 @@ export const startMainLoop = async (ctx: AppContext) => {
         logDebug("[LOOP] start iteration");
         logDebug(`\tIteration: ${ctx.state.iteration}`);
 
+
+        const inGameState = await processGameState(ctx);
+        logDebug("[LOOP] In-game state:\n" + inGameState);
+
         const history = await generateHistory(ctx);
 
         logDebug("[LOOP] Generating next action...");
-        const actionsList = await getNextAction(ctx, history);
+        const actionsList = await getNextAction(ctx, history, inGameState);
 
         for (const { command, reasoning } of actionsList) {
             if (command) {
@@ -37,10 +41,7 @@ export const startMainLoop = async (ctx: AppContext) => {
         const worldEvents = await processWorldEvents(ctx);
         logDebug("[LOOP] World events:\n" + worldEvents);
 
-        const inGameState = await processGameState(ctx);
-        logDebug("[LOOP] In-game state:\n" + inGameState);
-
-        ctx.state.taskHistory.push({ worldEvents, inGameState });
+        ctx.state.taskHistory.push({ worldEvents });
 
         await compressHistory(ctx);
 

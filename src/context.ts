@@ -17,10 +17,6 @@ export type TaskHistoryEntry = {
      * represents any events happening in the world since the last command
      */
     worldEvents?: string,
-    /**
-     * Describes current state of the game (e.g. items in the inventory, stats, nearby entities, etc.)
-     */
-    inGameState?: string,
 };
 
 export type AppContext = {

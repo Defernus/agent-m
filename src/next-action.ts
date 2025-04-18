@@ -14,6 +14,7 @@ export type NextAction = { command?: Command, reasoning?: string };
 export const getNextAction = async (
     ctx: AppContext,
     history: ResponseInput,
+    inGameState: string,
 ): Promise<NextAction[]> => {
     const mainModel = getMainModel(ctx);
 
@@ -25,6 +26,11 @@ export const getNextAction = async (
                 type: "message",
             },
             ...history,
+            {
+                role: "user",
+                content: inGameState,
+                type: "message",
+            },
         ],
         tools: COMMAND_LIST.map((command): FunctionTool => ({
             name: command.key,

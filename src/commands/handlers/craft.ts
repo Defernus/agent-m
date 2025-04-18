@@ -10,7 +10,7 @@ const SCHEMA = {
     },
     required: ["item", "count"],
     additionalProperties: false
-} satisfies Schema;
+} as const satisfies Schema;
 
 export const COMMAND_CRAFT = {
     key: "craft" as const,

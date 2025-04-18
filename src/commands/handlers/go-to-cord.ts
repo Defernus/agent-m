@@ -12,7 +12,7 @@ const SCHEMA = {
     },
     required: ["x", "y", "z", "range"],
     additionalProperties: false
-} satisfies Schema;
+} as const satisfies Schema;
 
 export const COMMAND_GO_TO_CORD = {
     key: "goToCord" as const,

@@ -9,7 +9,7 @@ const SCHEMA = {
     },
     required: ["ms"],
     additionalProperties: false
-} satisfies Schema;
+} as const satisfies Schema;
 
 export const COMMAND_WAIT = {
     key: "wait" as const,

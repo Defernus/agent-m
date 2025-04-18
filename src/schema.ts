@@ -1,10 +1,19 @@
 export type RegularSchema = {
-    type: "string" | "number" | "boolean" | "null",
+    type: "number" | "boolean" | "null",
+    description?: string,
 }
+
+export type StringSchema = {
+    type: "string",
+    enum?: string[],
+    description?: string,
+}
+
 
 export type ArraySchema = {
     type: "array",
     items: Schema,
+    description?: string,
 }
 
 export type ObjectSchema = {
@@ -14,21 +23,25 @@ export type ObjectSchema = {
     },
     required: string[],
     additionalProperties: false,
+    description?: string,
 }
 
 export type AnyOfSchema = {
     anyOf: Schema[],
 }
 
-export type Schema = RegularSchema | ObjectSchema | ArraySchema | AnyOfSchema;
+export type Schema = RegularSchema | StringSchema | ObjectSchema | ArraySchema | AnyOfSchema;
 
 export type TypeOfSchema<T> =
     T extends RegularSchema ? (
-        T["type"] extends "string" ? string :
         T["type"] extends "number" ? number :
         T["type"] extends "boolean" ? boolean :
         T["type"] extends "null" ? null :
         never
+    ) :
+    T extends StringSchema ? (
+        T["enum"] extends string[] ? T["enum"][number] :
+        string
     ) :
     T extends ArraySchema ? TypeOfSchema<T["items"]>[] :
     T extends ObjectSchema ? {

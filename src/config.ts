@@ -37,8 +37,6 @@ Use your knowledge of Minecraft to reason about the next action to take.
 The bad thing is you don't have any useful commands yet, ask me and i will add them for you (you already can use chat).
 
 After reasoning call one of the provided functions.
-
-Don't think for too long!
 `.trim();
 
 export const loadAppConfig = (): AppConfig => {

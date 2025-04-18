@@ -8,7 +8,7 @@ const SCHEMA = {
     },
     required: ["message"],
     additionalProperties: false
-} satisfies Schema;
+} as const satisfies Schema;
 
 export const COMMAND_CHAT = {
     key: "chat" as const,
