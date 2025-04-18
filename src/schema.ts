@@ -43,6 +43,7 @@ export const validateBySchema = <S extends Schema>(data: unknown, schema: S): Ty
         if (typeof data !== "number") {
             throw new Error(`Expected number, got ${typeof data}`);
         }
+        return Math.floor(data) as any;
     }
     if (schema.type === "boolean") {
         if (typeof data !== "boolean") {
@@ -72,11 +73,9 @@ export const validateBySchema = <S extends Schema>(data: unknown, schema: S): Ty
         }
         return obj as any;
     }
+
     throw new Error(`Unknown schema type: ${schema.type}`);
 };
-
-
-
 
 export const validateSchema = (schema: Schema) => {
     if (schema.type === "string" || schema.type === "integer" || schema.type === "boolean") {

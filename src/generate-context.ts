@@ -4,24 +4,34 @@ import { Item } from "prismarine-item";
 
 export const generateHistory = async (ctx: AppContext): Promise<ResponseInput> => {
     return ctx.taskHistory.flatMap((entry): ResponseInputItem[] => {
-        const commandStr = entry.command ? `# Command\n\`\`\`json\n${JSON.stringify(entry.command, null, 2)}\n\`\`\`` : "";
-        const reasoningStr = entry.reasoning ? `# Reasoning\n${entry.reasoning}` : "";
+        const result: ResponseInputItem[] = [];
 
-        const botMessage = `${entry.reasoning}\n\n${commandStr}\n\n${reasoningStr}`;
-        const result = `# Events\n${entry.worldEvents}\n# State\n${entry.inGameState}`
+        if (entry.command || entry.reasoning) {
+            const commandStr = entry.command ? `# Command\n\`\`\`json\n${JSON.stringify(entry.command, null, 2)}\n\`\`\`` : null;
+            const reasoningStr = entry.reasoning ? `# Reasoning\n${entry.reasoning}` : null;
+            const botMessage = [reasoningStr, commandStr].filter(Boolean).join("\n\n");
 
-        return [
-            {
+            result.push({
                 content: botMessage,
                 role: "assistant",
                 type: "message",
-            },
-            {
-                content: result,
+            });
+        }
+
+        if (entry.worldEvents) {
+            const worldEventsStr = entry.worldEvents ? `# Events\n${entry.worldEvents}` : null;
+            const inGameStateStr = entry.inGameState ? `# State\n${entry.inGameState}` : null;
+
+            const info = [worldEventsStr, inGameStateStr].filter(Boolean).join("\n\n");
+
+            result.push({
+                content: info,
                 role: "user",
                 type: "message",
-            }
-        ]
+            });
+        }
+
+        return result
     });
 };
 
@@ -86,9 +96,15 @@ export const processGameState = async (ctx: AppContext): Promise<string> => {
 
         return acc;
     }, {} as Record<string, { amount: number, name: string, nearestDistance: number, nearestId: string }>);
-    state.push(Object.values(entitiesByName).map((entity) =>
-        `- ${entity.name} x${entity.amount} (nearest: ${entity.nearestDistance.toFixed(2)} blocks, id: ${entity.nearestId})`
-    ).join("\n"));
+
+    const aaa = Object
+        .values(entitiesByName)
+        .sort((a, b) => a.nearestDistance - b.nearestDistance)
+        .map((entity) =>
+            `- ${entity.name} x${entity.amount} (nearest: ${entity.nearestDistance.toFixed(2)} blocks, id: ${entity.nearestId})`
+        )
+        .join("\n");
+    state.push(aaa);
 
     return state.join("\n");
 };

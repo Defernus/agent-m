@@ -15,7 +15,7 @@ const SCHEMA = {
 } satisfies Schema;
 
 export default {
-    key: "goTo" as const,
+    key: "goToCord" as const,
     schema: SCHEMA,
     description: "Go to a specific location, stop when within the \"range\" number of blocks",
     handler: async (

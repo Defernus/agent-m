@@ -1,19 +1,13 @@
-[[providers]]
-name = "openai"
-key = "qwerty"
-endpoint = "https://api.openai.com/v1"
+# ⚠️ WARNING: Make sure the model you specify supports the Responses API format
+# (i.e. the /v1/responses endpoint). Using unsupported models may result in
+# runtime errors or failed requests.
 
 [[providers]]
-name = "gemini"
-key = "your-gemini-api-key"
-endpoint = "https://api.gemini.com/v1"
+name = "openai"
+key = "..."
+endpoint = "https://api.openai.com/v1"
 
 [[models]]
 name = "gpt-4.1-nano"
 provider = "openai"
 model = "gpt-4.1-nano"
-
-[[models]]
-name = "gemini-2.5-pro"
-provider = "gemini"
-model = "gemini-2.5-pro"

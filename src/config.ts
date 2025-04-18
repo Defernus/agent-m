@@ -47,9 +47,9 @@ export const loadAppConfig = (): AppConfig => {
         mainModel: loadEnvString("MAIN_MODEL"),
         systemPrompt: loadEnvStringOr("SYSTEM_PROMPT", DEFAULT_SYSTEM_PROMPT),
         maxTaskHistory: loadEnvNumberOr("MAX_TASK_HISTORY", 1000),
-        iterationDelayMs: loadEnvNumberOr("ITERATION_DELAY", 5000),
+        iterationDelayMs: loadEnvNumberOr("ITERATION_DELAY", 0),
         mcServerPort: loadEnvNumberOr("MC_SERVER_PORT", 25565),
-        mcServerHost: loadEnvStringOr("MC_SERVER_HOST", "localhost"),
+        mcServerHost: loadEnvStringOr("MC_SERVER_HOST", "127.0.0.1"),
         mcBotUsername: loadEnvStringOr("MC_BOT_USERNAME", "Bot"),
     }
 };
