@@ -1,4 +1,4 @@
-import { Command } from "commands/commands";
+import { Command } from "commands/handle-command";
 import { AppConfig } from "config";
 import OpenAI from "openai";
 import mineflayer from "mineflayer";

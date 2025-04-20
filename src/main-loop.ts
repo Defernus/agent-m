@@ -1,4 +1,4 @@
-import { handleCommand } from "commands/commands";
+import { handleCommand } from "commands/handle-command";
 import { AppContext } from "context";
 import { generateHistory, processGameState, processWorldInfo as processWorldEvents } from "generate-context";
 import { getNextAction } from "next-action";

@@ -1,4 +1,4 @@
-import { Command, COMMAND_LIST } from "commands/commands";
+import { Command, COMMAND_LIST } from "commands/handle-command";
 import { AppContext } from "context";
 import { getMainModel } from "model";
 import {
