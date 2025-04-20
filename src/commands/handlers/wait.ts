@@ -1,6 +1,6 @@
 import { AppContext } from "context";
 import { sleep } from "openai/core";
-import { Schema, TypeOfSchema } from "schema";
+import { ObjectSchema, TypeOfSchema } from "schema";
 
 const SCHEMA = {
     type: "object",
@@ -9,7 +9,7 @@ const SCHEMA = {
     },
     required: ["ms"],
     additionalProperties: false
-} as const satisfies Schema;
+} as const satisfies ObjectSchema;
 
 export const COMMAND_WAIT = {
     key: "wait" as const,

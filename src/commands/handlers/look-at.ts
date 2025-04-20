@@ -1,6 +1,6 @@
 import { AppContext } from "context";
 import { handleError } from "handle-error";
-import { Schema, TypeOfSchema } from "schema";
+import { ObjectSchema, TypeOfSchema } from "schema";
 import { Vec3 } from "vec3";
 
 const SCHEMA_LOOK_AT_COORD = {
@@ -16,7 +16,7 @@ const SCHEMA_LOOK_AT_COORD = {
     },
     required: ["x", "y", "z"],
     additionalProperties: false
-} as const satisfies Schema;
+} as const satisfies ObjectSchema;
 
 const SCHEMA_LOOK_AT_ENTITY = {
     type: "object",
@@ -29,7 +29,7 @@ const SCHEMA_LOOK_AT_ENTITY = {
     },
     required: ["entityId"],
     additionalProperties: false
-} as const satisfies Schema;
+} as const satisfies ObjectSchema;
 
 
 const SCHEMA = {
@@ -44,7 +44,7 @@ const SCHEMA = {
     },
     required: ["target"],
     additionalProperties: false
-} satisfies Schema;
+} satisfies ObjectSchema;
 
 export const COMMAND_LOOK_AT = {
     key: "lookAt" as const,

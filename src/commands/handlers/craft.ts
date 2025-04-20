@@ -1,6 +1,6 @@
 import { AppContext } from "context";
 import { handleError } from "handle-error";
-import { Schema, TypeOfSchema } from "schema";
+import { ObjectSchema, TypeOfSchema } from "schema";
 
 const SCHEMA = {
     type: "object",
@@ -10,7 +10,7 @@ const SCHEMA = {
     },
     required: ["item", "count"],
     additionalProperties: false
-} as const satisfies Schema;
+} as const satisfies ObjectSchema;
 
 export const COMMAND_CRAFT = {
     key: "craft" as const,

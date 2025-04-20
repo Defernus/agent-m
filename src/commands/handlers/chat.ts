@@ -1,5 +1,5 @@
 import { AppContext } from "context";
-import { Schema, TypeOfSchema } from "schema";
+import { ObjectSchema, TypeOfSchema } from "schema";
 
 const SCHEMA = {
     type: "object",
@@ -8,7 +8,7 @@ const SCHEMA = {
     },
     required: ["message"],
     additionalProperties: false
-} as const satisfies Schema;
+} as const satisfies ObjectSchema;
 
 export const COMMAND_CHAT = {
     key: "chat" as const,

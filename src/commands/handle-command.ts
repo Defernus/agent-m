@@ -1,18 +1,15 @@
 import { AppContext } from "context";
-import { Schema, validateBySchema } from "schema";
-
-import fs from "fs";
-import path from "path";
+import { ObjectSchema, Schema, validateBySchema } from "schema";
 import { COMMAND_CRAFT } from "./handlers/craft";
 import { COMMAND_CHAT } from "./handlers/chat";
 import { COMMAND_GO_TO_CORD } from "./handlers/go-to-cord";
 import { COMMAND_WAIT } from "./handlers/wait";
 
 export type CommandInfo = {
-    key: string;
-    schema: Schema,
-    description: string;
-    handler: (ctx: AppContext, args: any) => Promise<void>;
+    key: string,
+    schema: ObjectSchema,
+    description: string,
+    handler: (ctx: AppContext, args: any) => Promise<void>,
 }
 
 export const COMMAND_LIST = [

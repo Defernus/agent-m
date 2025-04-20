@@ -1,6 +1,6 @@
 import { AppContext } from "context";
 import { goals } from "mineflayer-pathfinder";
-import { Schema, TypeOfSchema } from "schema";
+import { ObjectSchema, TypeOfSchema } from "schema";
 
 const SCHEMA = {
     type: "object",
@@ -12,7 +12,7 @@ const SCHEMA = {
     },
     required: ["x", "y", "z", "range"],
     additionalProperties: false
-} as const satisfies Schema;
+} as const satisfies ObjectSchema;
 
 export const COMMAND_GO_TO_CORD = {
     key: "goToCord" as const,
