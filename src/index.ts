@@ -1,18 +1,27 @@
+// load environment variables from .env file
 import "dotenv/config";
 
 import { loadAppConfig } from "config";
-import { createAppContext } from "context";
+import { createApp } from "create-app";
 import { startMainLoop } from "main-loop";
 import { logError, logInfo } from "utils/logger";
+import { PLUGINS } from "commands/plugins";
 
-const appConfig = loadAppConfig();
 
 (async () => {
-    logInfo("Loading configuration...");
-    const ctx = await createAppContext(appConfig);
+    logInfo("Loading configuration");
 
-    logInfo("Starting loop...");
-    await startMainLoop(ctx);
+    const appConfig = await loadAppConfig();
+
+    logInfo("Creating app");
+
+    const app = await createApp(
+        appConfig,
+        PLUGINS,
+    );
+
+    logInfo("Starting loop");
+    await startMainLoop(app);
 })()
     .then(() => {
         logInfo("Task solver finished.");

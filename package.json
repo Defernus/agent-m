@@ -1,31 +1,33 @@
 {
-  "name": "agent-m",
+  "name": "agent-ts",
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
     "build": "tsup src/index.ts --out-dir dist --format cjs",
     "dev": "ts-node --require tsconfig-paths/register src/index.ts",
-    "watch": "ts-node-dev --respawn --require tsconfig-paths/register src/index.ts"
+    "container": "docker-buildx build -t agent:latest -f ./bot.Docketfile . && docker rm -f agent && docker run --name agent -d agent:latest"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "description": "",
   "devDependencies": {
-    "@types/node": "^22.14.1",
-    "ts-node": "^10.9.2",
-    "ts-node-dev": "^2.0.0",
-    "tsconfig-paths": "^4.2.0",
-    "tsup": "^8.4.0",
-    "typescript": "^5.8.3"
+    "@types/diff": "^7.0.2",
+    "@types/dockerode": "^3.3.38",
+    "@types/node": "22.15.3",
+    "@types/tar-stream": "^3.1.3",
+    "ts-node": "10.9.2",
+    "ts-node-dev": "2.0.0",
+    "tsconfig-paths": "4.2.0",
+    "tsup": "8.4.0",
+    "typescript": "5.8.3"
   },
   "dependencies": {
-    "dotenv": "^16.5.0",
-    "minecraft-data": "^3.85.0",
-    "mineflayer": "^4.0.0",
-    "mineflayer-pathfinder": "^2.4.5",
-    "openai": "^4.94.0",
-    "prismarine-item": "^1.16.0",
-    "toml": "^3.0.0"
+    "diff": "^7.0.0",
+    "dockerode": "^4.0.6",
+    "dotenv": "16.5.0",
+    "openai": "4.97.0",
+    "tar-stream": "^3.1.7",
+    "toml": "3.0.0"
   }
 }

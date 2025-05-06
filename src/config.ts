@@ -1,24 +1,30 @@
 import { loadEnvNumberOr, loadEnvString, loadEnvStringOr } from "utils/env";
-import fs from "fs";
 import toml from "toml";
-import { Schema, TypeOfSchema, validateBySchema } from "schema";
+import { Schema, TypeOfSchema, validateBySchema, validateBySchemaUntyped } from "schema";
+import OpenAI from "openai";
+import Dockerode from "dockerode";
+import fs from "fs/promises";
 
 export type AppConfig = {
-    modelsPath: string;
-    modelsConfig: ModelsConfig;
+    modelsPath: string,
+    modelsConfig: ModelsConfig,
     models: Record<string, ModelInfo>,
 
-    mainModel: string;
+    mainModel: string,
 
-    systemPrompt: string;
+    systemPrompt: string,
 
-    maxTaskHistory: number;
+    iterationDelayMs: number,
 
-    iterationDelayMs: number;
+    aiProviders: Record<string, OpenAI>,
 
-    mcServerPort: number;
-    mcServerHost: string;
-    mcBotUsername: string;
+    containerName: string,
+
+    dockerSocket: string,
+
+    docker: Dockerode,
+
+    pathToLogs: string,
 };
 
 export type ModelInfo = {
@@ -27,22 +33,10 @@ export type ModelInfo = {
 };
 
 
-const DEFAULT_SYSTEM_PROMPT = `
-You are a Minecraft player.
-Reflect on your actions and the world around you.
-Do not make things up, use only the information you provided in the history.
-You do not have any visual input, only text. But you can use commands to interact and explore the world.
-Use your knowledge of Minecraft to reason about the next action to take.
-
-The bad thing is you don't have any useful commands yet, ask me and i will add them for you (you already can use chat).
-
-After reasoning call one of the provided functions.
-`.trim();
-
-export const loadAppConfig = (): AppConfig => {
+export const loadAppConfig = async (): Promise<AppConfig> => {
     const modelsPath = loadEnvStringOr("MODELS_PATH", "models.toml");
 
-    const rawModelsConfig = fs.readFileSync(modelsPath, "utf-8");
+    const rawModelsConfig = await fs.readFile(modelsPath, "utf-8");
     const modelsConfig: ModelsConfig = validateBySchema(toml.parse(rawModelsConfig), MODELS_CONFIG_SCHEMA);
 
     const models = Object.fromEntries(
@@ -52,17 +46,41 @@ export const loadAppConfig = (): AppConfig => {
         }]),
     );
 
+    const aiProviders = Object.fromEntries(
+        modelsConfig.providers.map((provider) => {
+            const llmClient = new OpenAI({
+                apiKey: provider.key,
+                baseURL: provider.endpoint,
+            });
+            return [provider.name, llmClient];
+        }),
+    );
+
+    const dockerSocket = loadEnvStringOr("DOCKER_SOCKET", "/var/run/docker.sock");
+
+    try {
+        await fs.access(dockerSocket, fs.constants.R_OK | fs.constants.W_OK);
+    } catch (err) {
+        throw new Error(`Docker socket is not accessible: ${dockerSocket}`);
+    }
+
+    const docker = new Dockerode({
+        socketPath: dockerSocket,
+
+    });
+
     return {
         modelsPath,
         modelsConfig,
         models,
         mainModel: loadEnvString("MAIN_MODEL"),
-        systemPrompt: loadEnvStringOr("SYSTEM_PROMPT", DEFAULT_SYSTEM_PROMPT),
-        maxTaskHistory: loadEnvNumberOr("MAX_TASK_HISTORY", 1000),
+        systemPrompt: loadEnvString("SYSTEM_PROMPT"),
         iterationDelayMs: loadEnvNumberOr("ITERATION_DELAY", 0),
-        mcServerPort: loadEnvNumberOr("MC_SERVER_PORT", 25565),
-        mcServerHost: loadEnvStringOr("MC_SERVER_HOST", "127.0.0.1"),
-        mcBotUsername: loadEnvStringOr("MC_BOT_USERNAME", "Bot"),
+        aiProviders,
+        containerName: loadEnvStringOr("CONTAINER_NAME", "agent"),
+        pathToLogs: loadEnvStringOr("PATH_TO_LOGS", "logs"),
+        dockerSocket,
+        docker,
     }
 };
 
@@ -100,3 +118,14 @@ const MODELS_CONFIG_SCHEMA = {
     required: ["providers", "models"],
     additionalProperties: false,
 } satisfies Schema;
+
+export const checkConfigDeps = (config: AppConfig, deps: Record<string, Schema>) => {
+    for (const [key, schema] of Object.entries(deps)) {
+        const value = (config as Record<string, unknown>)[key];
+        try {
+            validateBySchemaUntyped(value, schema);
+        } catch (error) {
+            throw new Error(`Config dependency "${key}" does not match schema: ${error}`);
+        }
+    }
+};

@@ -1,4 +1,4 @@
-# Simple minecraft ai companion
+# Advanced AI Agent
 
 ## TL;DR Run
 

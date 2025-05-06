@@ -1,54 +1,50 @@
-import { handleCommand } from "commands/handle-command";
-import { AppContext } from "context";
-import { generateHistory, processGameState, processWorldInfo as processWorldEvents } from "generate-context";
-import { getNextAction } from "next-action";
+import { handleToolUse } from "commands/handle-tool-use";
+import { App } from "app";
+import { getAiResponses } from "next-responses";
 import { sleep } from "openai/core";
-import { logDebug, logError } from "utils/logger";
+import { logDebug, logInfo } from "utils/logger";
+import { createContext } from "create-context";
+import md from "utils/md";
+import { Response } from "response";
+import { dispatchAppEvent } from "dispatch-event";
 
-export const startMainLoop = async (ctx: AppContext) => {
+export const startMainLoop = async (app: App) => {
     for (; ;) {
-        if (ctx.state.bot.disconnectReason) {
-            logError(`[LOOP] Bot disconnected:\n${ctx.state.bot.disconnectReason}`);
-            return;
+        if (app.exitReason) {
+            logInfo(`Exiting main loop:\n${app.exitReason}`);
+            break;
         }
 
-        logDebug("[LOOP] start iteration");
-        logDebug(`\tIteration: ${ctx.state.iteration}`);
+        logDebug(`[LOOP] start iteration ${app.iteration}`);
 
+        const context = await createContext(app);
+        await dispatchAppEvent(app, app.listeners.onContextGenerated, context);
 
-        const inGameState = await processGameState(ctx);
-        logDebug("[LOOP] In-game state:\n" + inGameState);
+        const responses = await getAiResponses(app, context);
 
-        const history = await generateHistory(ctx);
+        await handleResponses(app, responses);
 
-        logDebug("[LOOP] Generating next action...");
-        const actionsList = await getNextAction(ctx, history, inGameState);
+        await sleep(app.config.iterationDelayMs);
 
-        for (const { command, reasoning } of actionsList) {
-            if (command) {
-                logDebug(`[LOOP] Generated command:\n${JSON.stringify(command, null, 2)}`);
-                await handleCommand(ctx, command);
-            } else {
-                logDebug(`[LOOP] Generated reasoning:\n${reasoning}`);
-            }
-
-            ctx.state.taskHistory.push({ reasoning, command });
-        };
-
-        // TODO instead of simple delay wait for some actual events to happen before the next iteration
-        await sleep(ctx.config.iterationDelayMs);
-
-        const worldEvents = await processWorldEvents(ctx);
-        logDebug("[LOOP] World events:\n" + worldEvents);
-
-        ctx.state.taskHistory.push({ worldEvents });
-
-        await compressHistory(ctx);
-
-        ++ctx.state.iteration;
+        app.iteration += 1;
     }
 };
 
-const compressHistory = async (ctx: AppContext) => {
-    // TODO compress old history by summarizing groups of commands into one
-}
+const handleResponses = async (app: App, responses: Response[]) => {
+    for (const response of responses) {
+        if (response.type === "tool_use") {
+            logDebug(`Tool use:\n${md.jsonBlock(response.toolUse)}`);
+
+            const commandResult = await handleToolUse(app, response.toolUse);
+            logDebug(`Tool use result:\n${commandResult}`);
+
+            await dispatchAppEvent(app, app.listeners.onToolUseComplete, response.toolUse, commandResult);
+        } else if (response.type === "message") {
+            logDebug(`Message:\n${response.message}`);
+
+            await dispatchAppEvent(app, app.listeners.onMessage, response.message);
+        } else {
+            // skip reasoning
+        }
+    }
+};

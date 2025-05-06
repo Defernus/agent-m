@@ -28,6 +28,7 @@ export type ObjectSchema = {
 
 export type AnyOfSchema = {
     anyOf: Schema[],
+    description?: string,
 }
 
 export type Schema = RegularSchema | StringSchema | ObjectSchema | ArraySchema | AnyOfSchema;
