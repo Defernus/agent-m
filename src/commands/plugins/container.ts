@@ -10,6 +10,19 @@ const STATE_OPEN_FILES = "CONTAINER__OPEN_FILES";
 type StateOpenFiles = Record<string, { path: string }>;
 
 
+const MAX_BASH_OUTPUT_LINES = 100;
+
+const processBashResult = (result: string): string => {
+    const lines = result.split("\n");
+    // skip first lines if amount of lines is greater than MAX_BASH_OUTPUT_LINES
+    if (lines.length > MAX_BASH_OUTPUT_LINES) {
+        const skippedLines = lines.length - MAX_BASH_OUTPUT_LINES;
+        return `Skipped ${skippedLines} lines\n` + lines.slice(-MAX_BASH_OUTPUT_LINES).join("\n");
+    }
+    return result;
+}
+
+
 const CONTEXT_GENERATOR_OPEN_FILES = {
     generateContextPart: async (app) => {
         const openFiles = (app.state[STATE_OPEN_FILES] as StateOpenFiles);
@@ -33,8 +46,10 @@ const CONTEXT_GENERATOR_OPEN_FILES = {
         }
 
         return md.create(
-            md.header(1, "OpenFiles"),
-            md.ul(...filesContent),
+            md.header(1, "Open files"),
+            filesContent.length == 0
+                ? "No open files"
+                : md.ul(...filesContent),
         );
     },
 } as const satisfies ContextGenerator;
@@ -100,7 +115,7 @@ type OpenFilesArgs = TypeOfSchema<typeof SCHEMA_OPEN_FILES>;
 
 const TOOL_OPEN_FILES = {
     key: "open_files",
-    description: "Open files and add to the context. Do not forget to close them using `close_files` when don't need them anymore. You should open multiple files at once instead of calling this tool multiple times.",
+    description: "Open file in the container",
     schema: SCHEMA_OPEN_FILES,
     handle: async (app, args: OpenFilesArgs) => {
         const openFiles = (app.state[STATE_OPEN_FILES] as StateOpenFiles);
@@ -123,7 +138,6 @@ const TOOL_OPEN_FILES = {
         return md.textBlock("File opened");
     }
 } as const satisfies Tool;
-
 
 
 const SCHEMA_CLOSE_FILES = {
@@ -197,7 +211,9 @@ const TOOL_EXECUTE_BASH = {
     schema: SCHEMA_EXECUTE_BASH,
     handle: async (app, args: ExecuteBashArgs) => {
         const container = await getRunningContainer(app.config.docker, app.config.containerName);
-        const result = await executeInContainer(container, args.command, args.pwd, args.timeout ?? TIMEOUT_DEFAULT);
+        const rawResult = await executeInContainer(container, args.command, args.pwd, args.timeout ?? TIMEOUT_DEFAULT);
+
+        const result = processBashResult(rawResult);
 
         return md.details("Bash output", md.textBlock(result));
     }

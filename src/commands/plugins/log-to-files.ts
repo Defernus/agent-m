@@ -21,7 +21,7 @@ const writeLogs = async (app: App, type: string, content: string) => {
 };
 
 export const PLUGIN_LOG_TO_FILES = {
-    name: "history",
+    name: "log_to_files",
     configDeps: {
         pathToLogs: { type: "string" },
     },

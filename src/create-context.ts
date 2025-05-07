@@ -1,11 +1,13 @@
 import { App } from "app";
+import md from "utils/md";
 
 export const createContext = async (app: App): Promise<string> => {
-    const parts = await Promise.all(
-        Object
-            .values(app.contextGenerators)
-            .map((generator) => generator.generateContextPart(app))
-    );
+    let parts: string[] = [];
 
-    return parts.join("\n\n");
+    for (const generator of app.contextGenerators) {
+        const part = await generator.generateContextPart(app);
+        parts.push(part);
+    }
+
+    return md.create(...parts);
 };

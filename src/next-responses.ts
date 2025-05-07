@@ -24,14 +24,15 @@ export const getAiResponses = async (
                 type: "message",
             },
         ],
-        tools: Object.values(app.tools).map((tool) => ({
-            name: tool.key,
-            type: "function",
-            description: tool.description,
-            strict: true,
-            parameters: tool.schema
-        } satisfies FunctionTool)),
-
+        tools: Object.values(app.tools)
+            .filter((tool) => tool.isAvailable?.(app) ?? true)
+            .map((tool) => ({
+                name: tool.key,
+                type: "function",
+                description: tool.description,
+                strict: true,
+                parameters: tool.schema
+            } satisfies FunctionTool)),
         model: mainModel.model,
     });
 

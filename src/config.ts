@@ -1,4 +1,4 @@
-import { loadEnvNumberOr, loadEnvString, loadEnvStringOr } from "utils/env";
+import { loadEnvNumber, loadEnvNumberOr, loadEnvString, loadEnvStringOr } from "utils/env";
 import toml from "toml";
 import { Schema, TypeOfSchema, validateBySchema, validateBySchemaUntyped } from "schema";
 import OpenAI from "openai";
@@ -9,6 +9,9 @@ export type AppConfig = {
     modelsPath: string,
     modelsConfig: ModelsConfig,
     models: Record<string, ModelInfo>,
+
+    tgBotToken: string,
+    tgChatId: number,
 
     mainModel: string,
 
@@ -73,9 +76,11 @@ export const loadAppConfig = async (): Promise<AppConfig> => {
         modelsPath,
         modelsConfig,
         models,
+        tgBotToken: loadEnvString("TG_BOT_TOKEN"),
+        tgChatId: loadEnvNumber("TG_CHAT_ID"),
         mainModel: loadEnvString("MAIN_MODEL"),
         systemPrompt: loadEnvString("SYSTEM_PROMPT"),
-        iterationDelayMs: loadEnvNumberOr("ITERATION_DELAY", 0),
+        iterationDelayMs: loadEnvNumberOr("ITERATION_DELAY", 1000),
         aiProviders,
         containerName: loadEnvStringOr("CONTAINER_NAME", "agent"),
         pathToLogs: loadEnvStringOr("PATH_TO_LOGS", "logs"),
